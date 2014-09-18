@@ -14,6 +14,12 @@
       <f:entry title="${%Issue id pattern}" field="pattern">
         <f:textbox value="${instance.pattern}" />
       </f:entry>
+      <f:entry title="${%Max number of changed files}" field="noOfChangedFiles">
+        <f:textbox value="${instance.noOfChangedFiles}" />
+      </f:entry>
+      <f:entry title="${%Projects Gitweb path}" field="gitweb_path">
+        <f:textbox value="${instance.gitweb_path}" />
+      </f:entry>
       <f:entry field="linkEnabled">
         <f:checkbox id="linkEnabled" checked="${instance.linkEnabled}" />
         <label class="attach-previous">${%Enable hyperlink to the issue}</label>

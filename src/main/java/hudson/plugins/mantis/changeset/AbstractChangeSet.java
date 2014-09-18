@@ -20,11 +20,15 @@ public abstract class AbstractChangeSet<T extends Entry> implements ChangeSet, S
     protected int id;
     protected AbstractBuild<?, ?> build;
     protected T entry;
+    protected String gitweb_path;
+    protected String noOfChangedFiles;
 
     public AbstractChangeSet(final int id, final AbstractBuild<?, ?> build, final T entry) {
         this.id = id;
         this.build = build;
         this.entry = entry;
+        this.gitweb_path = "";
+        this.noOfChangedFiles = "";
     }
 
     public int getId() {
@@ -65,7 +69,7 @@ public abstract class AbstractChangeSet<T extends Entry> implements ChangeSet, S
         final User user = entry.getAuthor();
         if (user == null) {
             return UNKNOWN_AUTHOR;
-        } 
+        }
         return user.getId();
     }
 
@@ -75,6 +79,14 @@ public abstract class AbstractChangeSet<T extends Entry> implements ChangeSet, S
         }
         return entry.getMsg();
     }
-    
+
+    public void addGitwebPath(String gitwebPath) {
+    	this.gitweb_path = gitwebPath;
+    }
+
+    public void addNoOfChangedFiles(String noOfChangedFiles) {
+    	this.noOfChangedFiles = noOfChangedFiles;
+    }
+
     private static final Logger LOGGER = Logger.getLogger(AbstractChangeSet.class.getName());
 }

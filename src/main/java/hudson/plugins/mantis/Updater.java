@@ -5,6 +5,7 @@ import hudson.model.BuildListener;
 import hudson.model.Hudson;
 import hudson.model.Result;
 import hudson.model.Run;
+import hudson.plugins.git.GitChangeSet;
 import hudson.plugins.mantis.changeset.ChangeSet;
 import hudson.plugins.mantis.changeset.ChangeSetFactory;
 import hudson.plugins.mantis.model.MantisIssue;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
 final class Updater {
 
     private static final String CRLF = System.getProperty("line.separator");
-    
+
     private final MantisIssueUpdater property;
 
     Updater(final MantisIssueUpdater property) {
@@ -69,6 +70,8 @@ final class Updater {
             try {
                 final MantisIssue issue = site.getIssue(changeSet.getId());
                 if (update) {
+                    changeSet.addGitwebPath(MantisProjectProperty.get(build).getGitweb_path());
+                    changeSet.addNoOfChangedFiles(MantisProjectProperty.get(build).getNoOfChangedFiles());
                     final String text = createUpdateText(build, changeSet, rootUrl);
                     site.updateIssue(changeSet.getId(), text, property.isKeepNotePrivate());
                     Utility.log(logger, Messages.Updater_Updating(changeSet.getId()));
@@ -94,11 +97,13 @@ final class Updater {
         final String url = rootUrl + build.getUrl();
 
         final StringBuilder text = new StringBuilder();
-        text.append(Messages.Updater_IssueIntegrated(prjName, prjNumber, url));
-        text.append(CRLF).append(CRLF);
-        
+
         if (property.isRecordChangelog()) {
             text.append(changeSet.createChangeLog());
+        }
+        else {
+        	 text.append(Messages.Updater_IssueIntegrated(prjName, prjNumber, url));
+             text.append(CRLF).append(CRLF);
         }
         return text.toString();
     }
@@ -123,12 +128,23 @@ final class Updater {
 
     private List<ChangeSet> findChangeSetsFromSCM(final AbstractBuild<?, ?> build) {
         final List<ChangeSet> changeSets = new ArrayList<ChangeSet>();
-        
+
         MantisProjectProperty mpp = MantisProjectProperty.get(build);
         final Pattern pattern = mpp.getRegexpPattern();
         for (final Entry change : build.getChangeSet()) {
-            final Matcher matcher = pattern.matcher(change.getMsg());
-            while (matcher.find()) {
+        	String commitMsg;
+        	if(change instanceof GitChangeSet)
+        	{
+        		GitChangeSet gitChange = (GitChangeSet)change;
+        		commitMsg = gitChange.getMsg() + CRLF + gitChange.getComment();
+        	}
+        	else
+        	{
+        		commitMsg = change.getMsg();
+        	}
+
+        	final Matcher matcher = pattern.matcher(commitMsg);
+        	while (matcher.find()) {
                 int id;
                 try {
                     id = Integer.parseInt(matcher.group(1));
@@ -140,9 +156,9 @@ final class Updater {
                 changeSets.add(ChangeSetFactory.newInstance(id, build, change));
             }
         }
-        
+
         return changeSets;
     }
-    
+
     private static final Logger LOGGER = Logger.getLogger(Updater.class.getName());
 }

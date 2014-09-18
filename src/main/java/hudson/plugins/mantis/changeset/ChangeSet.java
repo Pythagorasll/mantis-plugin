@@ -19,5 +19,8 @@ public interface ChangeSet {
 
     int getId();
 
+    void addGitwebPath(String gitwebPath);
+    void addNoOfChangedFiles(String noOfChangedFiles);
+
     String createChangeLog();
 }

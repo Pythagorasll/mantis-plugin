@@ -45,6 +45,8 @@ public final class MantisProjectProperty extends JobProperty<AbstractProject<?, 
     private final int projectId;
     private final String category;
     private final String pattern;
+    private final String gitweb_path;
+    private final String noOfChangedFiles;
     private final String regex;
     private Pattern regexpPattern;
     private final boolean linkEnabled;
@@ -60,11 +62,12 @@ public final class MantisProjectProperty extends JobProperty<AbstractProject<?, 
             job = build.getProject();
         }
         return job.getProperty(MantisProjectProperty.class);
-    }        
-    
+    }
+
     @DataBoundConstructor
     public MantisProjectProperty(String siteName, int projectId, String category,
-            String pattern, String regex, boolean linkEnabled) {
+            String pattern, String regex, boolean linkEnabled, String noOfChangedFiles,
+            String gitweb_path) {
         String name;
         if (siteName != null) {
              name = siteName;
@@ -75,6 +78,8 @@ public final class MantisProjectProperty extends JobProperty<AbstractProject<?, 
         this.projectId = projectId;
         this.category = Util.fixEmptyAndTrim(category);
         this.pattern = Util.fixEmptyAndTrim(pattern);
+        this.gitweb_path = Util.fixEmptyAndTrim(gitweb_path);
+        this.noOfChangedFiles = Util.fixEmptyAndTrim(noOfChangedFiles);
         this.regex = Util.fixEmptyAndTrim(regex);
         if (this.regex != null) {
             this.regexpPattern = Pattern.compile(this.regex);
@@ -98,6 +103,14 @@ public final class MantisProjectProperty extends JobProperty<AbstractProject<?, 
 
     public String getPattern() {
         return pattern;
+    }
+
+    public String getGitweb_path() {
+        return gitweb_path;
+    }
+
+    public String getNoOfChangedFiles() {
+        return noOfChangedFiles;
     }
 
     public String getRegex() {
@@ -150,7 +163,7 @@ public final class MantisProjectProperty extends JobProperty<AbstractProject<?, 
         final String pt = buf.toString().replace(ISSUE_ID_STRING, ")(\\d+)(?=");
         return Pattern.compile(pt);
     }
-    
+
     public static final class DescriptorImpl extends JobPropertyDescriptor {
 
         private final CopyOnWriteList<MantisSite> sites = new CopyOnWriteList<MantisSite>();
@@ -174,7 +187,7 @@ public final class MantisProjectProperty extends JobProperty<AbstractProject<?, 
         public MantisSite[] getSites() {
             return sites.toArray(new MantisSite[0]);
         }
-        
+
         void addSite(MantisSite site) {
             sites.add(site);
         }
@@ -251,7 +264,7 @@ public final class MantisProjectProperty extends JobProperty<AbstractProject<?, 
             public String getName() {
                 return name;
             }
-            
+
             public MantisProjectItem(String name, String id) {
                 this.name = name;
                 this.id = id;
@@ -304,8 +317,8 @@ public final class MantisProjectProperty extends JobProperty<AbstractProject<?, 
         public FormValidation doCheckLogin(
                 @QueryParameter("m.url") String url, @QueryParameter("m.version") String version, 
                 @QueryParameter("m.userName") String userName, @QueryParameter("m.password") String password, 
-                @QueryParameter("m.basicUserName") String basicUserName, 
-                @QueryParameter("m.basicPassword") String basicPassword) 
+                @QueryParameter("m.basicUserName") String basicUserName,
+                @QueryParameter("m.basicPassword") String basicPassword)
                 throws IOException, ServletException {
             // only administrator allowed
             Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
@@ -313,7 +326,7 @@ public final class MantisProjectProperty extends JobProperty<AbstractProject<?, 
             if (url == null) {
                 return FormValidation.error(Messages.MantisProjectProperty_MantisUrlMandatory());
             }
-            
+
             try {
                 URL urL = new URL(url);
             } catch (MalformedURLException e) {
@@ -330,7 +343,7 @@ public final class MantisProjectProperty extends JobProperty<AbstractProject<?, 
 
             return FormValidation.ok(Messages.MantisProjectProperty_Verified());
         }
-        
+
         public FormValidation doCheckPattern(@AncestorInPath final AbstractProject<?, ?> project,
                 @QueryParameter final String value) throws IOException, ServletException {
             project.checkPermission(Job.CONFIGURE);
