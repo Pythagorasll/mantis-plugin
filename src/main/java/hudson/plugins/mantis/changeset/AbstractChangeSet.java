@@ -78,7 +78,11 @@ public abstract class AbstractChangeSet<T extends Entry> implements ChangeSet, S
         * so that we can test authorOrCommitter without needing a fully instantiated
         * Hudson (which is needed for User.get in getAuthor()).
         * @return author name
+        * https://github.com/jenkinsci/git-plugin/blob/master/src/main/java/hudson/plugins/git/GitChangeSet.java
         */
+        //We might be able to use user.getDisplayName() or user.getFullName() as defined here
+        //http://javadoc.jenkins-ci.org/hudson/model/User.html
+
         return user.getId();
     }
 
