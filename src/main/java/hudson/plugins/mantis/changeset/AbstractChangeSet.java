@@ -70,6 +70,15 @@ public abstract class AbstractChangeSet<T extends Entry> implements ChangeSet, S
         if (user == null) {
             return UNKNOWN_AUTHOR;
         }
+        //GetID returns 'firstname.lastname'
+        //Instead of 'Firstname Lastname'
+        //We might be able to use user.getAuthorName() instead eventhough
+        //comments on getAuthorName says
+        /* Gets the author name for this changeset - note that this is mainly here
+        * so that we can test authorOrCommitter without needing a fully instantiated
+        * Hudson (which is needed for User.get in getAuthor()).
+        * @return author name
+        */
         return user.getId();
     }
 
