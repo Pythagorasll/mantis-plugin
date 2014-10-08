@@ -21,6 +21,6 @@ public interface ChangeSet {
 
     void addGitwebPath(String gitwebPath);
     void addNoOfChangedFiles(String noOfChangedFiles);
-
+    void addBranch(String newBranch);
     String createChangeLog();
 }

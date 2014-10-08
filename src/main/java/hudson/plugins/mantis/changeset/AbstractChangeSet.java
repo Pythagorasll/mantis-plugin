@@ -22,6 +22,7 @@ public abstract class AbstractChangeSet<T extends Entry> implements ChangeSet, S
     protected T entry;
     protected String gitweb_path;
     protected String noOfChangedFiles;
+    protected String branch;
 
     public AbstractChangeSet(final int id, final AbstractBuild<?, ?> build, final T entry) {
         this.id = id;
@@ -101,5 +102,9 @@ public abstract class AbstractChangeSet<T extends Entry> implements ChangeSet, S
     	this.noOfChangedFiles = noOfChangedFiles;
     }
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractChangeSet.class.getName());
+   public void addBranch(String newBranch) {
+        this.branch = newBranch;
+   }
+
+   private static final Logger LOGGER = Logger.getLogger(AbstractChangeSet.class.getName());
 }

@@ -22,7 +22,9 @@ public class GitChangeSet extends AbstractChangeSet<hudson.plugins.git.GitChange
     @Override
     public String createChangeLog() {
         final StringBuilder text = new StringBuilder();
-        text.append("Git commit SHA: ");
+        text.append(getBranch());
+        text.append(CRLF);
+        text.append("Commit: ");
         text.append(getGitwebPath());
         text.append(getRevision());
         text.append(CRLF);
@@ -44,7 +46,7 @@ public class GitChangeSet extends AbstractChangeSet<hudson.plugins.git.GitChange
     		text.append(" other files changed.");
     		break;
    		}
-		
+
 		text.append(
 			Messages.ChangeSet_ChangedPaths_Path(
             			ChangeSetUtil.getEditTypeMark(file.getEditType()),
@@ -85,4 +87,11 @@ public class GitChangeSet extends AbstractChangeSet<hudson.plugins.git.GitChange
         }
         return retval;
     }
+
+   protected String getBranch(){
+      if (branch == null) {
+         return "";
+      }
+      return branch;
+   }
 }

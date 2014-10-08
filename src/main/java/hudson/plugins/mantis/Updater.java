@@ -11,6 +11,10 @@ import hudson.plugins.mantis.changeset.ChangeSetFactory;
 import hudson.plugins.mantis.model.MantisIssue;
 import hudson.scm.ChangeLogSet.Entry;
 
+import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
+import org.jenkinsci.plugins.tokenmacro.TokenMacro;
+
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +76,13 @@ final class Updater {
                 if (update) {
                     changeSet.addGitwebPath(MantisProjectProperty.get(build).getGitweb_path());
                     changeSet.addNoOfChangedFiles(MantisProjectProperty.get(build).getNoOfChangedFiles());
+                    try {
+                       changeSet.addBranch(TokenMacro.expand(build,listener,"Branch: ${GIT_BRANCH}"));
+                    } catch (Exception e) {
+                       //MacroEvaluationException, IOExcpetion or InterruptedException are expected
+                       listener.getLogger().println(e.getMessage());
+                       changeSet.addBranch("Branch fetch failed");
+                    }
                     final String text = createUpdateText(build, changeSet, rootUrl);
                     site.updateIssue(changeSet.getId(), text, property.isKeepNotePrivate());
                     Utility.log(logger, Messages.Updater_Updating(changeSet.getId()));
